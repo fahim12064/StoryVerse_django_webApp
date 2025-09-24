@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS for StoryVerse */
+
+/* Dark mode styles */
+.dark {
+  background-color: #1a202c;
+  color: #e2e8f0;
+}
+
+.dark .bg-white {
+  background-color: #2d3748;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+
+.dark .text-gray-600 {
+  color: #cbd5e0;
+}
+
+.dark .border-gray-300 {
+  border-color: #4a5568;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2d3748;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #4a5568;
+}
+
+.dark .bg-gray-200 {
+  background-color: #4a5568;
+}
+
+.dark .text-gray-700 {
+  color: #e2e8f0;
+}
+
+.dark .border-gray-200 {
+  border-color: #4a5568;
+}
+
+/* Image handling with object-fit */
+.img-contain {
+  object-fit: contain;
+  background-color: #f3f4f6; /* bg-gray-100 equivalent */
+}
+
+.dark .img-contain {
+  background-color: #2d3748;
+}
+
+/* Transition for dark mode toggle */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Focus styles for form elements */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Notification badge animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.notification-badge {
+  animation: pulse 2s infinite;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+input,
+textarea,
+select {
+  transition: all 0.2s ease;
+}
