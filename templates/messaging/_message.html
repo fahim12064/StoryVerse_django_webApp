@@ -1,0 +1,20 @@
+<div class="flex mb-4 {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+    {% if message.sender != user %}
+        <div class="flex-shrink-0 mr-3">
+            {% if message.sender.profile.profile_picture %}
+                <img src="{{ message.sender.profile.profile_picture.url }}" alt="{{ message.sender.username }}" class="h-10 w-10 rounded-full object-cover">
+            {% else %}
+                <div class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                    <span class="text-gray-600 dark:text-gray-300 font-medium">{{ message.sender.username|first|upper }}</span>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <div class="max-w-xs lg:max-w-md">
+        <div class="{% if message.sender == user %}bg-blue-500 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white{% endif %} rounded-lg px-4 py-2">
+            <p>{{ message.content }}</p>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 {% if message.sender == user %}text-right{% endif %}">{{ message.created_at|date:"g:i A" }}</p>
+    </div>
+</div>

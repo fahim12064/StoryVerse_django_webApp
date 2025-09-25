@@ -1,0 +1,157 @@
+<header class="bg-white dark:bg-gray-800 shadow-md">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">S</span>
+                </div>
+                <span class="text-xl font-bold text-gray-800 dark:text-white">StoryVerse</span>
+            </a>
+            
+            <!-- Navigation -->
+            <nav class="hidden md:flex space-x-6">
+                <a href="{% url 'home' %}" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">Home</a>
+                <a href="{% url 'leaderboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">Leaderboard</a>
+            </nav>
+            
+            <!-- User Actions -->
+            <div class="flex items-center space-x-4">
+                <!-- Dark Mode Toggle -->
+                <div class="flex items-center">
+                    <label for="dark-mode-toggle" class="sr-only">Dark Mode</label>
+                    <div class="relative">
+                        <input type="checkbox" id="dark-mode-toggle" class="sr-only">
+                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                    </div>
+                </div>
+                
+                {% if user.is_authenticated %}
+                    <!-- Messages -->
+                    <div class="relative dropdown">
+                        <button class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition relative" id="message-dropdown-toggle">
+                            <i class="fas fa-envelope text-xl"></i>
+                            <span id="message-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                        <div id="message-dropdown" class="dropdown-menu hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Messages</h3>
+                                    <a href="{% url 'messaging:inbox' %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">View All</a>
+                                </div>
+                            </div>
+                            <div id="message-dropdown-content" class="max-h-96 overflow-y-auto">
+                                <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-inbox text-3xl mb-2"></i>
+                                    <p>No messages yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="relative dropdown">
+                        <button class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition relative" id="notification-dropdown-toggle">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                        <div id="notification-dropdown" class="dropdown-menu hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Notifications</h3>
+                                    <div class="flex space-x-2">
+                                        <button id="mark-all-notifications-read" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Mark all as read</button>
+                                        <a href="{% url 'notifications:notifications' %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="notification-dropdown-content" class="max-h-96 overflow-y-auto">
+                                <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-bell-slash text-3xl mb-2"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Menu -->
+                    <div class="relative dropdown">
+                        <button class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                    <span class="text-gray-600 dark:text-gray-300 font-medium">{{ user.username|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <span class="hidden md:inline">{{ user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                            <a href="{% url 'accounts:profile' user.username %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
+                            <a href="{% url 'accounts:edit_profile' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Edit Profile</a>
+                            <a href="{% url 'blog:create_post' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Create Post</a>
+                            <div class="border-t border-gray-200 dark:border-gray-700"></div>
+                            <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Login/Register Buttons -->
+                    <div class="flex space-x-2">
+                        <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Register</a>
+                    </div>
+                {% endif %}
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition" id="mobile-menu-button">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+            <nav class="flex flex-col space-y-2">
+                <a href="{% url 'home' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Home</a>
+                <a href="{% url 'leaderboard' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Leaderboard</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:profile' user.username %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Profile</a>
+                    <a href="{% url 'blog:create_post' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Create Post</a>
+                    <a href="{% url 'accounts:logout' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+    
+    // Dark mode toggle styles
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', function() {
+            const dot = this.nextElementSibling.nextElementSibling;
+            if (this.checked) {
+                dot.style.transform = 'translateX(24px)';
+            } else {
+                dot.style.transform = 'translateX(0)';
+            }
+        });
+        
+        // Set initial state
+        if (darkModeToggle.checked) {
+            const dot = darkModeToggle.nextElementSibling.nextElementSibling;
+            dot.style.transform = 'translateX(24px)';
+        }
+    }
+</script>

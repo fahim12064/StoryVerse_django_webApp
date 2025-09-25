@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">{{ profile_user.username }}'s Followers</h2>
+    
+    {% if followers %}
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for follower in followers %}
+                <li class="py-3 flex items-center justify-between">
+                    <div class="flex items-center">
+                        {% if follower.profile.profile_picture %}
+                            <img src="{{ follower.profile.profile_picture.url }}" alt="{{ follower.username }}" class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                <span class="text-gray-600 dark:text-gray-300 font-medium">{{ follower.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="ml-3">
+                            <a href="{% url 'accounts:profile' follower.username %}" class="text-sm font-medium text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition">{{ follower.username }}</a>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ follower.profile.points }} points</p>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated and user != follower %}
+                        {% if follower.id in user.following.values_list 'id' %}
+                            <button class="follow-btn px-3 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white rounded-full font-medium transition" data-user-id="{{ follower.id }}" data-following="true">Following</button>
+                        {% else %}
+                            <button class="follow-btn px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-full font-medium transition" data-user-id="{{ follower.id }}" data-following="false">Follow</button>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500 dark:text-gray-400 text-center py-4">{{ profile_user.username }} doesn't have any followers yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

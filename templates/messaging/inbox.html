@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Messages - StoryVerse{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Messages</h1>
+    </div>
+    
+    <div class="flex flex-col md:flex-row">
+        <!-- Conversation List -->
+        <div class="w-full md:w-1/3 border-r border-gray-200 dark:border-gray-700">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="relative">
+                    <input type="text" placeholder="Search conversations..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="conversation-list" class="overflow-y-auto" style="max-height: calc(100vh - 250px);">
+                {% for conversation in conversation_data %}
+                    <a href="{% url 'messaging:conversation' conversation.id %}" class="conversation-item block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 {% if conversation.unread_count > 0 %}bg-blue-50 dark:bg-blue-900/20{% endif %}" data-conversation-id="{{ conversation.id }}">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                {% if conversation.other_participant.profile.profile_picture %}
+                                    <img src="{{ conversation.other_participant.profile.profile_picture.url }}" alt="{{ conversation.other_participant.username }}" class="h-12 w-12 rounded-full object-cover">
+                                {% else %}
+                                    <div class="h-12 w-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                        <span class="text-gray-600 dark:text-gray-300 font-medium">{{ conversation.other_participant.username|first|upper }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4 flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ conversation.other_participant.username }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {% if conversation.last_message %}
+                                            {{ conversation.last_message.created_at|date:"g:i A" }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                    {% if conversation.last_message %}
+                                        {{ conversation.last_message.content|truncatechars:30 }}
+                                    {% else %}
+                                        No messages yet
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% if conversation.unread_count > 0 %}
+                                <div class="ml-2 flex-shrink-0">
+                                    <span class="w-5 h-5 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">{{ conversation.unread_count }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p>No conversations yet</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Conversation View -->
+        <div class="w-full md:w-2/3">
+            <div class="h-full flex items-center justify-center p-8 text-center">
+                <div>
+                    <i class="fas fa-comments text-5xl text-gray-400 mb-4"></i>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Select a conversation</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Choose a conversation from the list to start messaging</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

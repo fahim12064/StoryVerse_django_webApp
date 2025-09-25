@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Conversation with {{ other_participant.username }} - StoryVerse{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-full flex flex-col" style="max-height: calc(100vh - 150px);">
+    <!-- Conversation Header -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+        <a href="{% url 'messaging:inbox' %}" class="md:hidden mr-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        {% if other_participant.profile.profile_picture %}
+            <img src="{{ other_participant.profile.profile_picture.url }}" alt="{{ other_participant.username }}" class="w-10 h-10 rounded-full object-cover">
+        {% else %}
+            <div class="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                <span class="text-gray-600 dark:text-gray-300 font-medium">{{ other_participant.username|first|upper }}</span>
+            </div>
+        {% endif %}
+        <div class="ml-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">{{ other_participant.username }}</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Online</p>
+        </div>
+    </div>
+    
+    <!-- Messages Container -->
+    <meta name="current-conversation-id" content="{{ conversation.id }}">
+    <meta name="recipient-id" content="{{ other_participant.id }}">
+    <div id="message-container" class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        {% for message in messages %}
+            <div class="flex mb-4 {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                {% if message.sender != user %}
+                    <div class="flex-shrink-0 mr-3">
+                        {% if message.sender.profile.profile_picture %}
+                            <img src="{{ message.sender.profile.profile_picture.url }}" alt="{{ message.sender.username }}" class="h-10 w-10 rounded-full object-cover">
+                        {% else %}
+                            <div class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                <span class="text-gray-600 dark:text-gray-300 font-medium">{{ message.sender.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <div class="max-w-xs lg:max-w-md">
+                    <div class="{% if message.sender == user %}bg-blue-500 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white{% else %} rounded-lg px-4 py-2">
+                        <p>{{ message.content }}</p>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 {% if message.sender == user %}text-right{% endif %}">{{ message.created_at|date:"g:i A" }}</p>
+                </div>
+            </div>
+        {% empty %}
+            <div class="h-full flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-comment-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 dark:text-gray-400">No messages yet. Start a conversation!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Message Form -->
+    {% if user.is_authenticated %}
+        <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+            <form id="message-form">
+                {% csrf_token %}
+                <input type="hidden" id="recipient-id" value="{{ other_participant.id }}">
+                <div class="flex space-x-2">
+                    <input type="text" id="message-input" placeholder="Type a message..." class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Scroll to bottom of message container
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}

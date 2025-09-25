@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Edit Post - StoryVerse{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-10">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Edit Post</h1>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <label for="id_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+            <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            {% if form.title.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            <label for="id_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+            <textarea name="content" id="id_content" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white min-h-[200px]">{{ form.content.value|default:'' }}</textarea>
+            {% if form.content.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.content.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            <label for="id_cover_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image</label>
+            <div class="flex items-center space-x-4">
+                {% if form.cover_image.value %}
+                    <img src="{{ form.cover_image.value.url }}" alt="Cover Image" class="w-32 h-20 object-cover rounded">
+                {% else %}
+                    <div class="w-32 h-20 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center">
+                        <span class="text-gray-600 dark:text-gray-300 text-sm">No cover image</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <input type="file" name="cover_image" id="id_cover_image" 
+                           class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-100 dark:hover:file:bg-blue-800">
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">JPG, GIF or PNG. Max size 5MB.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="id_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                <select name="category" id="id_category" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">---------</option>
+                    {% for category in form.category.field.queryset %}
+                        <option value="{{ category.id }}" {% if category.id == form.category.value %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="id_subcategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subcategory</label>
+                <select name="subcategory" id="id_subcategory" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">---------</option>
+                    {% if form.subcategory.field.queryset %}
+                        {% for subcategory in form.subcategory.field.queryset %}
+                            <option value="{{ subcategory.id }}" {% if subcategory.id == form.subcategory.value %}selected{% endif %}>{{ subcategory.name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                {% if form.subcategory.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.subcategory.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+            <a href="{{ post.get_absolute_url }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition">Update Post</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('id_category');
+        const subcategorySelect = document.getElementById('id_subcategory');
+        
+        // Store the current subcategory ID for later comparison
+        const currentSubcategoryId = {% if post.subcategory %}{{ post.subcategory.id }}{% else %}null{% endif %};
+        
+        // Set initial subcategory options based on the current category
+        const categoryId = categorySelect.value;
+        if (categoryId) {
+            fetch(`/api/subcategories/?category_id=${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear subcategory options
+                    subcategorySelect.innerHTML = '<option value="">---------</option>';
+                    
+                    data.subcategories.forEach(subcategory => {
+                        const option = document.createElement('option');
+                        option.value = subcategory.id;
+                        option.textContent = subcategory.name;
+                        
+                        // Select the current subcategory if it matches
+                        if (currentSubcategoryId !== null && subcategory.id === currentSubcategoryId) {
+                            option.selected = true;
+                        }
+                        
+                        subcategorySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching subcategories:', error);
+                });
+        }
+        
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            
+            // Clear subcategory options
+            subcategorySelect.innerHTML = '<option value="">---------</option>';
+            
+            if (categoryId) {
+                // Fetch subcategories for the selected category
+                fetch(`/api/subcategories/?category_id=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.subcategories.forEach(subcategory => {
+                            const option = document.createElement('option');
+                            option.value = subcategory.id;
+                            option.textContent = subcategory.name;
+                            subcategorySelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching subcategories:', error);
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}

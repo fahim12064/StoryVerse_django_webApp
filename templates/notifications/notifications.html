@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - StoryVerse{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Notifications</h1>
+        <button id="mark-all-notifications-read" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white rounded-lg font-medium transition">Mark all as read</button>
+    </div>
+    
+    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        {% for notification in notifications %}
+            <div class="notification-item p-4 hover:bg-gray-50 dark:hover:bg-gray-750 {% if not notification.is_read %}bg-blue-50 dark:bg-blue-900/20{% endif %}" data-notification-id="{{ notification.id }}">
+                <div class="flex">
+                    <div class="flex-shrink-0 mr-3">
+                        {% if notification.sender.profile.profile_picture %}
+                            <img src="{{ notification.sender.profile.profile_picture.url }}" alt="{{ notification.sender.username }}" class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                <span class="text-gray-600 dark:text-gray-300 font-medium">{{ notification.sender.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-800 dark:text-white">
+                                    <a href="{% url 'accounts:profile' notification.sender.username %}" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 transition">{{ notification.sender.username }}</a>
+                                    {{ notification.text }}
+                                </p>
+                                
+                                {% if notification.notification_type == 'follow' %}
+                                    <div class="mt-2">
+                                        <a href="{% url 'accounts:profile' notification.sender.username %}" class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            View Profile
+                                        </a>
+                                    </div>
+                                {% elif notification.notification_type == 'like' and notification.related_post %}
+                                    <div class="mt-2">
+                                        <a href="{{ notification.related_post.get_absolute_url }}" class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            View Post
+                                        </a>
+                                    </div>
+                                {% elif notification.notification_type == 'comment' and notification.related_post %}
+                                    <div class="mt-2">
+                                        <a href="{{ notification.related_post.get_absolute_url }}#comments" class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            View Comment
+                                        </a>
+                                    </div>
+                                {% elif notification.notification_type == 'reply' and notification.related_comment %}
+                                    <div class="mt-2">
+                                        <a href="{{ notification.related_comment.post.get_absolute_url }}#comment-{{ notification.related_comment.id }}" class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            View Reply
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center ml-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ notification.created_at|date:"F d, Y, g:i A" }}</span>
+                                {% if not notification.is_read %}
+                                    <span class="ml-2 w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="p-12 text-center">
+                <i class="fas fa-bell-slash text-5xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400">No notifications yet</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
